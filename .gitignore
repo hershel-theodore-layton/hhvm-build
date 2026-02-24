@@ -1,1 +1,6 @@
 build_log.txt
+
+# You can get this file by pulling the hhvm-full
+# docker image and copying the file out of the container.
+# Checking in 50+ meg files seems excessive.
+my.new.deb
