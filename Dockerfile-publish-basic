@@ -1,0 +1,13 @@
+FROM ubuntu:noble
+
+ENV HHVM_DISABLE_PERSONALITY=true \
+    HHVM_DISABLE_NUMA=true
+
+RUN mkdir /var/tmp/hhvm-installer && \
+    cd /var/tmp/hhvm-installer
+
+RUN --mount=type=bind,target=my.new.deb,source=my.new.deb,rw \
+    apt update && \
+    apt install ./my.new.deb -y && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,36 @@
+FROM ubuntu:noble
+
+ENV HHVM_DISABLE_PERSONALITY=true \
+    HHVM_DISABLE_NUMA=true
+
+RUN mkdir /var/tmp/hhvm-installer
+
+COPY my.new.deb /var/tmp/hhvm-installer
+COPY watchman-v2025.05.26.00-linux.zip /var/tmp/hhvm-installer
+
+RUN cd /var/tmp/hhvm-installer && \
+    apt update && \
+    apt install ./my.new.deb -y && \
+    apt install git php-cli php-curl php-zip curl wget unzip liblzma5 -y && \
+    apt clean && \
+    # https://getcomposer.org/doc/faqs/how-to-install-composer-programmatically.md
+    wget https://raw.githubusercontent.com/composer/getcomposer.org/refs/heads/main/web/installer -O - -q | php -- --quiet && \
+    mv composer.phar /usr/local/bin/composer && \
+    # https://facebook.github.io/watchman/docs/install#prebuilt-binaries
+    unzip watchman-v2025.05.26.00-linux.zip && \
+    cd watchman-v2025.05.26.00-linux && \
+    mkdir -p /usr/local/{bin,lib} /usr/local/var/run/watchman && \
+    cp bin/* /usr/local/bin && \
+    cp lib/* /usr/local/lib && \
+    chmod 755 /usr/local/bin/watchman && \
+    chmod 2777 /usr/local/var/run/watchman && \
+    cd .. && \
+    rm -r watchman-v2025.05.26.00-linux && \
+    # https://github.com/facebook/watchman/issues/1283
+    rm /usr/local/lib/liblzma.so.5 && \
+    ln -s /usr/lib/x86_64-linux-gnu/liblzma.so.5 /usr/local/lib/liblzma.so.5 && \
+    # https://hhvm.com/blog/2021/05/11/hhvm-4.109.html
+    echo "hhvm.autoload.enabled=true" >> /etc/hhvm/php.ini && \
+    echo "hhvm.autoload.enabled=true" >> /etc/hhvm/server.ini && \
+    echo "hhvm.autoload.db.path=/var/tmp/hhvm-autoload-%{euid}-%{schema}.db" >> /etc/hhvm/php.ini && \
+    echo "hhvm.autoload.db.path=/var/tmp/hhvm-autoload-%{euid}-%{schema}.db" >> /etc/hhvm/server.ini
