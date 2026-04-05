@@ -1,35 +1,37 @@
 FROM ubuntu:noble
 
-RUN echo "bust the cache 1"
+RUN echo "bust the cache 20260405.1"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBUILD_LINTIAN=no \
     DISTRO=ubuntu-24.04-noble \
     IS_NIGHTLY=1 \
-    CLANG_VERSION=18 \
+    CLANG_VERSION=20 \
     OUT=/mnt/project/hhvm/gold \
     HHVM_DISABLE_NUMA=true \
     HHVM_DISABLE_PERSONALITY=true
 
 RUN apt update -y && apt install -y \
+    devscripts \
+    equivs \
     git \
     wget \
     lsb-release \
     software-properties-common \
     gpg \
     clang \
-    clang-18 \
-    libc++-18-dev \
-    libc++abi-18-dev \
+    clang-20 \
+    libc++-20-dev \
+    libc++abi-20-dev \
     ca-certificates \
     sudo
 
 RUN if [ -f /etc/alternatives/cc ]; then update-alternatives --remove-all cc; fi && \
     if [ -f /etc/alternatives/c++ ]; then update-alternatives --remove-all c++; fi && \
-    update-alternatives --install /usr/bin/cc cc /usr/bin/clang++-18 500 && \
-    update-alternatives --set cc /usr/bin/clang++-18 && \
-    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-18 500 && \
-    update-alternatives --set c++ /usr/bin/clang++-18
+    update-alternatives --install /usr/bin/cc cc /usr/bin/clang++-20 500 && \
+    update-alternatives --set cc /usr/bin/clang++-20 && \
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-20 500 && \
+    update-alternatives --set c++ /usr/bin/clang++-20
 
 WORKDIR /mnt/project
 
@@ -52,9 +54,5 @@ RUN sed "s/MAJOR 6/MAJOR $HHVM_VERSION_MAJOR/" -i hphp/runtime/version.h && \
 # If you get a build error, try compiling with fewer threads. This makes reading
 # the error messages a lot easier. By default, the build uses all the threads.
 # RUN sed 's#parallel=\$(grep -E -c '\''\^processor'\'' /proc/cpuinfo)#parallel=1#' -i ci/bin/make-debianish-package
-
-# This is a workaround added in February 2026. The build deps are missing this package.
-# If you can build hhvm 26.2.0+ without this line, remove it.
-RUN apt-get install -y libgoogle-glog-dev
 
 RUN ci/bin/make-debianish-package
