@@ -42,6 +42,8 @@ ARG HHVM_VERSION_PATCH=0
 ARG HHVM_BRANCH_NAME=master
 ENV VERSION="$HHVM_VERSION_MAJOR.$HHVM_VERSION_MINOR.$HHVM_VERSION_PATCH"
 
+RUN echo "Clone cache buster 20260405.2"
+
 RUN git clone --recurse-submodules -b $HHVM_BRANCH_NAME --single-branch https://github.com/hershel-theodore-layton/hhvm hhvm
 
 WORKDIR /mnt/project/hhvm
