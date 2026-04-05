@@ -1,6 +1,6 @@
 FROM ubuntu:noble
 
-RUN echo "bust the cache 20260405.1"
+RUN echo "bust the cache 20260405.2"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBUILD_LINTIAN=no \
